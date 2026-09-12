@@ -60,6 +60,7 @@ fun ProjectScreen(projectId: String, initialTab: String, onBack: () -> Unit) {
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboardManager.current
+    val bump = { revision += 1 }
 
     if (showExport && exportText != null) {
         AlertDialog(
@@ -129,6 +130,20 @@ fun ProjectScreen(projectId: String, initialTab: String, onBack: () -> Unit) {
                                 if (json != null) { exportText = json; showExport = true }
                             },
                         )
+                        DropdownMenuItem(
+                            text = { Text("Bundle BOM to kit") },
+                            onClick = {
+                                menuOpen = false
+                                val kit = ProjectStore.createKitFromProject(projectId)
+                                scope.launch {
+                                    snackbar.showSnackbar(
+                                        if (kit != null) "Kit created: ${kit.name}"
+                                        else "No BOM to bundle",
+                                    )
+                                }
+                                bump()
+                            },
+                        )
                     }
                 },
             )
@@ -150,8 +165,8 @@ fun ProjectScreen(projectId: String, initialTab: String, onBack: () -> Unit) {
             when (selected) {
                 0 -> OverviewTab(pack)
                 1 -> WiringTab(pack)
-                2 -> BomTab(pack)
-                3 -> AssemblyTab(pack)
+                2 -> BomTab(pack, onPackChanged = bump)
+                3 -> AssemblyTab(pack, onPackChanged = bump)
                 4 -> CadTab(pack)
             }
         }
