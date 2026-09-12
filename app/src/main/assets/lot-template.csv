@@ -1,0 +1,5 @@
+name,board,variant,mpn,qty,notes
+Student-01,ESP32,A,ESP32-WROOM-32,1,classroom kit MCU
+Student-01,ESP32,A,10K-0603,4,pull-ups
+Student-02,ESP32,B,ESP32-WROOM-32,1,classroom kit MCU
+Student-02,ESP32,B,BME280,1,env sensor variant
