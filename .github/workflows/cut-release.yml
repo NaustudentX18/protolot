@@ -1,0 +1,70 @@
+name: Cut tagged release
+
+on:
+  push:
+    paths:
+      - ".release-request"
+
+jobs:
+  cut-release:
+    name: assembleDebug + GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout tip
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read .release-request
+        id: req
+        run: |
+          TAG=$(sed -n '1p' .release-request | tr -d '[:space:]')
+          SHA=$(sed -n '2p' .release-request | tr -d '[:space:]')
+          if [ -z "$SHA" ]; then SHA="$GITHUB_SHA"; fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout release SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.req.outputs.sha }}
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Assemble debug APK
+        run: gradle :app:assembleDebug --stacktrace
+
+      - name: Tag and GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.req.outputs.tag }}
+          SHA: ${{ steps.req.outputs.sha }}
+        run: |
+          mkdir -p release-assets
+          cp app/build/outputs/apk/debug/*.apk "release-assets/protolot-${TAG}.apk"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+            git tag "$TAG" "$SHA"
+            git push origin "$TAG"
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "release-assets/protolot-${TAG}.apk" --clobber
+          else
+            gh release create "$TAG" "release-assets/protolot-${TAG}.apk" --title "Protolot $TAG" --notes "Protolot $TAG sideload (app.protolot.build). Target $SHA." --target "$SHA"
+          fi
