@@ -93,8 +93,8 @@ fun SettingsScreen() {
                 Column(Modifier.padding(16.dp)) {
                     Text("Export formats", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))
-                    Text("• JSON project pack — M1 (default)", style = MaterialTheme.typography.bodyMedium)
-                    Text("• CSV lot — M1 (headers: ${ProtolotLocks.LOT_CSV_HEADER_LINE})", style = MaterialTheme.typography.bodyMedium)
+                    Text("• JSON project pack — default (offline-readable)", style = MaterialTheme.typography.bodyMedium)
+                    Text("• CSV lot — headers: ${ProtolotLocks.LOT_CSV_HEADER_LINE}", style = MaterialTheme.typography.bodyMedium)
                     Text("• CAD (STEP/STL/GLB) — M4 hooks", style = MaterialTheme.typography.bodyMedium, color = ProtoStub)
                 }
             }
@@ -105,12 +105,12 @@ fun SettingsScreen() {
                 ),
             ) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("License / about", style = MaterialTheme.typography.titleMedium)
+                    Text("License / about · CMP-ABOUT", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))
                     Text("Protolot", style = MaterialTheme.typography.bodyLarge)
-                    Text("applicationId: app.protolot.build", style = MaterialTheme.typography.bodyMedium)
+                    Text("applicationId: ${ProtolotLocks.APPLICATION_ID}", style = MaterialTheme.typography.bodyMedium)
                     Text("Brand: Copper Bench", style = MaterialTheme.typography.bodyMedium)
-                    Text("Version: 0.1.0-m0", style = MaterialTheme.typography.bodyMedium)
+                    Text("Version: ${ProtolotLocks.VERSION_NAME}", style = MaterialTheme.typography.bodyMedium)
                     Text("License: MIT", style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(8.dp))
                     Text(
