@@ -71,7 +71,7 @@ object StubPackFactory {
                 mpn = mcuMpn,
                 qty = 1,
                 notes = "MCU / board",
-                estUnitPriceLabel = "Est. $4.50",
+                estUnitPriceLabel = "Est. \$4.50",
                 estUnitPriceCents = 450,
                 confidence = 0.82f,
                 vendorLinks = VendorLinks.defaultsFor(mcuMpn),
@@ -81,7 +81,7 @@ object StubPackFactory {
                 mpn = "BME280",
                 qty = 1,
                 notes = "Env sensor (I2C)",
-                estUnitPriceLabel = "Est. $3.20",
+                estUnitPriceLabel = "Est. \$3.20",
                 estUnitPriceCents = 320,
                 confidence = 0.74f,
                 vendorLinks = VendorLinks.defaultsFor("BME280"),
@@ -91,7 +91,7 @@ object StubPackFactory {
                 mpn = "RC0603FR-074K7L",
                 qty = 2,
                 notes = "4.7k I2C pull-ups",
-                estUnitPriceLabel = "Est. $0.02",
+                estUnitPriceLabel = "Est. \$0.02",
                 estUnitPriceCents = 2,
                 confidence = 0.45f,
                 vendorLinks = VendorLinks.defaultsFor("RC0603FR-074K7L"),
@@ -101,7 +101,7 @@ object StubPackFactory {
                 mpn = "CL10B104KB8NNNC",
                 qty = 1,
                 notes = "100nF decoupling",
-                estUnitPriceLabel = "Est. $0.01",
+                estUnitPriceLabel = "Est. \$0.01",
                 estUnitPriceCents = 1,
                 confidence = 0.71f,
                 vendorLinks = VendorLinks.defaultsFor("CL10B104KB8NNNC"),
@@ -135,11 +135,13 @@ object StubPackFactory {
         AssemblyStep("Smoke-test power rail", "Check 3V3 before plugging sensors."),
     )
 
-    fun defaultFirmware(boardClass: String?): String =
-        "Firmware notes (light):\n" +
-            "• Target board: ${boardClass ?: \"ESP32-class\"}\n" +
+    fun defaultFirmware(boardClass: String?): String {
+        val target = boardClass ?: "ESP32-class"
+        return "Firmware notes (light):\n" +
+            "• Target board: $target\n" +
             "• Bring-up: blink + I2C scan on SDA/SCL nets\n" +
             "• Deeper firmware assist is out of M1."
+    }
 
     fun overview(title: String, prompt: String, boardClass: String?, source: String): String {
         val board = boardClass?.let { "Board class: $it\n" } ?: ""
