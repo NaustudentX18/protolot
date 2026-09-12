@@ -25,6 +25,7 @@ jobs:
           if [ -z "$SHA" ]; then SHA="$GITHUB_SHA"; fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "Cutting $TAG @ $SHA"
 
       - name: Checkout release SHA
         uses: actions/checkout@v4
@@ -49,22 +50,25 @@ jobs:
       - name: Assemble debug APK
         run: gradle :app:assembleDebug --stacktrace
 
-      - name: Tag and GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ steps.req.outputs.tag }}
-          SHA: ${{ steps.req.outputs.sha }}
+      - name: Prepare APK asset
         run: |
           mkdir -p release-assets
-          cp app/build/outputs/apk/debug/*.apk "release-assets/protolot-${TAG}.apk"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
-            git tag "$TAG" "$SHA"
-            git push origin "$TAG"
-          fi
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "release-assets/protolot-${TAG}.apk" --clobber
-          else
-            gh release create "$TAG" "release-assets/protolot-${TAG}.apk" --title "Protolot $TAG" --notes "Protolot $TAG sideload (app.protolot.build). Target $SHA." --target "$SHA"
-          fi
+          cp app/build/outputs/apk/debug/*.apk "release-assets/protolot-${{ steps.req.outputs.tag }}.apk"
+          ls -la release-assets/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.req.outputs.tag }}
+          target_commitish: ${{ steps.req.outputs.sha }}
+          name: Protolot ${{ steps.req.outputs.tag }}
+          body: |
+            Protolot ${{ steps.req.outputs.tag }} sideload build.
+            - applicationId: `app.protolot.build`
+            - Target: `${{ steps.req.outputs.sha }}`
+            - Install: `adb install -r` the attached APK
+          files: release-assets/protolot-${{ steps.req.outputs.tag }}.apk
+          generate_release_notes: true
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
