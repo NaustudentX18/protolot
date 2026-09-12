@@ -139,3 +139,16 @@ data class ImportError(
     val message: String,
     val row: Int? = null,
 )
+
+/** Kit shell (M2) — commerce depth deferred to M3. */
+data class Kit(
+    val id: String,
+    val name: String,
+    val sourceProjectId: String,
+    val sourceProjectTitle: String,
+    val partCount: Int,
+    val bomSnapshot: List<BomLine>,
+    val createdAtMs: Long,
+) {
+    val rolledQty: Int get() = bomSnapshot.sumOf { it.qty }
+}

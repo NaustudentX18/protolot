@@ -7,6 +7,9 @@ object ProtolotLocks {
     /** Confidence below this shows low-confidence chip + Override CTA. */
     const val LOW_CONFIDENCE_THRESHOLD = 0.6f
 
+    /** After human override, local display confidence is bumped to this. */
+    const val OVERRIDE_CONFIDENCE_BUMP = 0.85f
+
     /** Canonical lot CSV headers — exact order. */
     val LOT_CSV_HEADERS = listOf("name", "board", "variant", "mpn", "qty", "notes")
 
@@ -18,6 +21,6 @@ object ProtolotLocks {
      */
     const val SAFETY_ON_DEVICE = true
 
-    const val VERSION_NAME = "0.2.0-m1"
+    const val VERSION_NAME = "0.3.0-m2"
     const val APPLICATION_ID = "app.protolot.build"
 }
