@@ -2,13 +2,12 @@ package app.protolot.build.data
 
 /**
  * Spec PRD v1.3 locks (CoS).
- * M0 embeds these constants; full confidence/lot UI lands M1–M2.
  */
 object ProtolotLocks {
-    /** Confidence below this shows low-confidence chip + Override CTA (M2). */
+    /** Confidence below this shows low-confidence chip + Override CTA. */
     const val LOW_CONFIDENCE_THRESHOLD = 0.6f
 
-    /** Canonical lot CSV headers — exact order (M1 import). */
+    /** Canonical lot CSV headers — exact order. */
     val LOT_CSV_HEADERS = listOf("name", "board", "variant", "mpn", "qty", "notes")
 
     const val LOT_CSV_HEADER_LINE = "name,board,variant,mpn,qty,notes"
@@ -18,4 +17,7 @@ object ProtolotLocks {
      * Live/Hub stubs live under More only — not primary bottom nav.
      */
     const val SAFETY_ON_DEVICE = true
+
+    const val VERSION_NAME = "0.2.0-m1"
+    const val APPLICATION_ID = "app.protolot.build"
 }
