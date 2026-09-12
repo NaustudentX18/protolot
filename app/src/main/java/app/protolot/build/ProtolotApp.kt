@@ -43,7 +43,6 @@ private data class TabItem(
 @Composable
 fun ProtolotApp() {
     val navController = rememberNavController()
-    // Primary: Ideas · Lots · Kits · More (Live/Hub under More only — v1.3)
     val tabs = listOf(
         TabItem(ProtolotDestinations.HOME, "Ideas", Icons.Filled.Home),
         TabItem(ProtolotDestinations.LOTS, "Lots", Icons.Filled.Inventory2),
@@ -138,10 +137,19 @@ fun ProtolotApp() {
             composable(ProtolotDestinations.LOTS) {
                 LotsScreen(
                     onImport = { navController.navigate(ProtolotDestinations.LOTS_IMPORT) },
+                    onOpenProject = { id ->
+                        navController.navigate(ProtolotDestinations.project(id))
+                    },
                 )
             }
             composable(ProtolotDestinations.LOTS_IMPORT) {
-                LotsScreen(onImport = {}, importFocused = true)
+                LotsScreen(
+                    onImport = {},
+                    importFocused = true,
+                    onOpenProject = { id ->
+                        navController.navigate(ProtolotDestinations.project(id))
+                    },
+                )
             }
             composable(ProtolotDestinations.KITS) { KitsScreen() }
             composable(ProtolotDestinations.MORE) {
