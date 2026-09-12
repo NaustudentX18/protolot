@@ -182,9 +182,15 @@ fun ProvidersScreen() {
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(Modifier.height(8.dp))
-                    Text("• DigiKey — Link-out stub", style = MaterialTheme.typography.labelSmall, color = ProtoStub)
-                    Text("• Mouser — Link-out stub", style = MaterialTheme.typography.labelSmall, color = ProtoStub)
-                    Text("• LCSC — Link-out stub", style = MaterialTheme.typography.labelSmall, color = ProtoStub)
+                    Text("• DigiKey — Link-out stub · digikey.com search URL", style = MaterialTheme.typography.labelSmall, color = ProtoStub)
+                    Text("• Mouser — Link-out stub · mouser.com search URL", style = MaterialTheme.typography.labelSmall, color = ProtoStub)
+                    Text("• LCSC — Link-out stub · lcsc.com search URL", style = MaterialTheme.typography.labelSmall, color = ProtoStub)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "BOM rows open ≥2 external Search link (estimate) buttons (DigiKey + Mouser; LCSC also). No vendor API keys.",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = ProtoStub,
+                    )
                 }
             }
             Text(
