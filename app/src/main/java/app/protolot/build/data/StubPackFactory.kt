@@ -140,7 +140,7 @@ object StubPackFactory {
         return "Firmware notes (light):\n" +
             "• Target board: $target\n" +
             "• Bring-up: blink + I2C scan on SDA/SCL nets\n" +
-            "• Deeper firmware assist is out of M1."
+            "• Deeper firmware assist is out of M2."
     }
 
     fun overview(title: String, prompt: String, boardClass: String?, source: String): String {
@@ -149,6 +149,6 @@ object StubPackFactory {
             board +
             "Generation: $source\n\n" +
             "Original prompt:\n\"${prompt.trim()}\"\n\n" +
-            "Review Wiring + BOM, optionally import a classroom lot, then Export JSON for offline use."
+            "Review Wiring + BOM (override low-confidence parts), walk Assembly checklist, optionally import a classroom lot, then Export JSON for offline use."
     }
 }
