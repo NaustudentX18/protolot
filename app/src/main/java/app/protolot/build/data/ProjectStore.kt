@@ -4,11 +4,12 @@ import java.util.UUID
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
- * In-memory store for M1 — projects, lots, blocked log, imported packs.
+ * In-memory store for M2 — projects, lots, kits, blocked log, imported packs.
  */
 object ProjectStore {
     private val projects = CopyOnWriteArrayList<ProjectPack>()
     private val lots = CopyOnWriteArrayList<Lot>()
+    private val kits = CopyOnWriteArrayList<Kit>()
     private val blocked = CopyOnWriteArrayList<BlockedGeneration>()
     private val listeners = CopyOnWriteArrayList<() -> Unit>()
 
@@ -20,6 +21,8 @@ object ProjectStore {
     fun get(id: String): ProjectPack? = projects.find { it.id == id }
     fun allLots(): List<Lot> = lots.toList().sortedByDescending { it.createdAtMs }
     fun getLot(id: String): Lot? = lots.find { it.id == id }
+    fun allKits(): List<Kit> = kits.toList().sortedByDescending { it.createdAtMs }
+    fun getKit(id: String): Kit? = kits.find { it.id == id }
     fun blockedLog(): List<BlockedGeneration> = blocked.toList().sortedByDescending { it.blockedAtMs }
 
     fun recordBlocked(prompt: String, reason: String) {
@@ -76,6 +79,84 @@ object ProjectStore {
     fun exportPackJson(id: String): String? {
         val pack = get(id) ?: return null
         return ProjectPackCodec.toJson(pack)
+    }
+
+    /** M2: persist assembly checklist check-off. */
+    fun toggleAssemblyStep(projectId: String, stepIndex: Int): Boolean {
+        val pack = get(projectId) ?: return false
+        if (stepIndex !in pack.assembly.indices) return false
+        val updated = pack.assembly.mapIndexed { i, step ->
+            if (i == stepIndex) step.copy(checked = !step.checked) else step
+        }
+        upsert(pack.copy(assembly = updated))
+        return true
+    }
+
+    fun setAssemblyReviewed(projectId: String, reviewed: Boolean): Boolean {
+        val pack = get(projectId) ?: return false
+        val updated = pack.assembly.map { it.copy(checked = reviewed) }
+        upsert(pack.copy(assembly = updated))
+        return true
+    }
+
+    /**
+     * M2: CMP-PART-OVERRIDE — swap MPN/notes/qty; mark overridden; bump local confidence;
+     * refresh DigiKey/Mouser/LCSC-class link-out stubs from new MPN.
+     */
+    fun overrideBomLine(
+        projectId: String,
+        ref: String,
+        newMpn: String?,
+        newNotes: String?,
+        newQty: Int?,
+        extraVendorUrl: String? = null,
+    ): Boolean {
+        val pack = get(projectId) ?: return false
+        val idx = pack.bom.indexOfFirst { it.ref.equals(ref, ignoreCase = true) }
+        if (idx < 0) return false
+        val old = pack.bom[idx]
+        val mpn = newMpn?.trim()?.takeIf { it.isNotEmpty() } ?: old.mpn
+        val notes = newNotes?.trim()?.takeIf { it.isNotEmpty() } ?: old.notes
+        val qty = newQty?.coerceAtLeast(0) ?: old.qty
+        var links = VendorLinks.defaultsFor(mpn)
+        val extra = extraVendorUrl?.trim().orEmpty()
+        if (extra.startsWith("http://") || extra.startsWith("https://")) {
+            links = links + VendorLink(
+                providerId = "custom",
+                label = "Custom",
+                url = extra,
+            )
+        }
+        val updatedLine = old.copy(
+            mpn = mpn,
+            notes = notes,
+            qty = qty,
+            confidence = ProtolotLocks.OVERRIDE_CONFIDENCE_BUMP,
+            overridden = true,
+            vendorLinks = links,
+            estUnitPriceLabel = if (old.estUnitPriceCents == null) "Est. unavailable" else old.estUnitPriceLabel,
+        )
+        val newBom = pack.bom.toMutableList().also { it[idx] = updatedLine }
+        upsert(pack.copy(bom = newBom))
+        return true
+    }
+
+    /** M2 kits shell — create kit from project BOM (no pricing/commerce). */
+    fun createKitFromProject(projectId: String, kitName: String? = null): Kit? {
+        val pack = get(projectId) ?: return null
+        if (pack.bom.isEmpty()) return null
+        val kit = Kit(
+            id = UUID.randomUUID().toString().take(8),
+            name = kitName?.trim()?.ifEmpty { null } ?: "${pack.title} kit",
+            sourceProjectId = pack.id,
+            sourceProjectTitle = pack.title,
+            partCount = pack.bom.size,
+            bomSnapshot = pack.bom.map { it.copy() },
+            createdAtMs = System.currentTimeMillis(),
+        )
+        kits.add(0, kit)
+        notifyChanged()
+        return kit
     }
 
     fun createLotFromRows(
