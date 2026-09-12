@@ -1,26 +1,34 @@
-# Protolot — M0 vs M1–M2
+# Protolot — M0 / M1 / M2
 
-## M1 — Build pack + lots (this milestone) · `0.2.0-m1`
+## M2 — Assembly + parts trust (this milestone) · `0.3.0-m2`
 
-| Area | M1 |
+| Area | M2 |
 |------|----|
-| Wiring | `CMP-WIRING-VIEW` structured nets (named pins / connections) — not empty stub |
-| BOM | `CMP-BOM-TABLE` ref · qty · notes · vendor link-out columns + estimate disclaimer + est. total |
-| Confidence | Threshold **0.6**; low-conf chip + Override CTA (stub; full override M2) |
-| Lots | CSV **and** JSON import; headers exactly `name,board,variant,mpn,qty,notes`; Classroom/Fleet labels; ERR-IMPORT-PARSE |
-| Global BOM | `CMP-GLOBAL-BOM-EDIT` applies field change across selected lot members |
-| Export | JSON project pack export + offline reopen/import in-app |
-| Providers | LLM BYOK wire-up (OpenAI-compatible); Test connection; stub gen when unconfigured; ERR-GEN-FAIL Retry |
-| Parts | DigiKey/Mouser/LCSC **link-out stubs only** — no vendor API keys |
+| Assembly | `CMP-ASSEMBLY-LIST` ordered steps with check-off + progress + “Mark build pack reviewed” |
+| Confidence | Full scores on BOM lines; `confidence < 0.6` → amber/low-conf + **Override** CTA |
+| Override | `CMP-PART-OVERRIDE` bottom sheet — swaps MPN/notes/qty, refreshes DigiKey/Mouser/LCSC link-outs, marks `overridden`, bumps local confidence |
+| Vendors | ≥2 (DigiKey + Mouser + LCSC) **link-out stubs** open externally via `ACTION_VIEW` — **no vendor API keys** |
+| Estimates | Disclaimer + “Estimate only” total; never verified checkout |
+| Kits | Shell polish: list, create-from-BOM, bundle preview; commerce/live drop stubbed M3 |
 | Safety | On-device `SafetyGate` refuse; hard dialog; in-session block log |
 | Live / Maker Hub | Under **More** only — deferred M3; not ship-gate |
 | Theme | **Copper Bench** |
 | Identity | `app.protolot.build` · Protolot · **MIT** |
 | CI | assembleDebug on main + APK artifact |
 
-### M1 ship gate (met)
+### M2 ship gate (target)
+1. Assembly ordered checklist with check-off  
+2. Confidence scores + working Override that swaps part  
+3. ≥2 vendor link-out stubs opening externally  
+4. Safety refusals still solid; Live/Hub under More only  
+
+## M1 — Build pack + lots (prior) · `0.2.0-m1`
+
+Wiring structured nets · BOM table + estimate disclaimer · Lot CSV/JSON import (`name,board,variant,mpn,qty,notes`) · Global BOM edit · JSON export/reopen · LLM BYOK · link-out stubs · safety on-device.
+
+### M1 ship gate (met — do not regress)
 1. Project tabs: Overview · Wiring · BOM · Assembly · CAD  
-2. Wiring = structured nets (non-empty for stub/LLM packs)  
+2. Wiring = structured nets  
 3. BOM table + estimate disclaimer + est. total  
 4. Lot CSV and JSON import; clear errors on bad headers  
 5. Global BOM field edit across selected members  
@@ -29,15 +37,8 @@
 
 ## M0 — Scaffold (prior)
 
-Shell · Copper Bench · prompt→stub · on-device safety · nav · Providers/Settings stubs · Live/Hub under More.
-
-## M2 — Assembly + parts trust (next)
-
-- `CMP-ASSEMBLY-LIST` checklist interaction  
-- Full `CMP-PART-OVERRIDE`  
-- ≥2 vendor link-out stubs polish (still **no vendor API keys**)  
-- Kits shell polish  
+Shell · Copper Bench · prompt→stub · on-device safety · nav · Providers/Settings · Live/Hub under More.
 
 ## M3+ (deferred)
 
-Live Build (BIN + auction), Maker Hub — stubs under More until Spec confirms.
+Live Build (BIN + auction), Maker Hub, kit commerce depth — stubs under More until Spec confirms.
