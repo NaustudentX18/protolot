@@ -61,6 +61,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
           tag_name: ${{ steps.req.outputs.tag }}
           target_commitish: ${{ steps.req.outputs.sha }}
           name: Protolot ${{ steps.req.outputs.tag }}
@@ -72,5 +73,3 @@ jobs:
           files: release-assets/protolot-${{ steps.req.outputs.tag }}.apk
           generate_release_notes: true
           make_latest: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
